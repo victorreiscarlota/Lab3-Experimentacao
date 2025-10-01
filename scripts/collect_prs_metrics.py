@@ -21,9 +21,19 @@ def get_prs(repo_fullname, github_token, min_prs=100):
     }
     while True:
         resp = requests.get(url, headers=headers, params=params)
-        data = resp.json()
+        if resp.status_code != 200:
+            print(f"Erro ao coletar PRs de {repo_fullname}. Status: {resp.status_code}.")
+            print("Headers:", resp.headers)
+            print("Body:", resp.text)
+            break
+        try:
+            data = resp.json()
+        except Exception as e:
+            print(f"Erro ao decodificar JSON para {repo_fullname}. Exception: {e}")
+            print("Body:", resp.text)
+            break
         if isinstance(data, dict) and data.get("message"):
-            print(f"Erro: {data['message']} no repo {repo_fullname}")
+            print(f"API Error: {data['message']} no repo {repo_fullname}")
             break
         prs.extend(data)
         if len(data) < per_page:
