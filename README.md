@@ -81,7 +81,17 @@ Todas estão listadas em `requirements.txt`.
 
 ## Autor
 
-- [victorreiscarlota](https://github.com/victorreiscarlota)
+## Autores
+
+- [Victor Reis Carlota](https://github.com/victorreiscarlota)
+  
+  <img src="./docs/vitola.png" alt="Victor Reis Carlota" width="150"/>
+
+- [Luís Felipe Brescia](https://github.com/LuisBrescia)
+
+  <img src="./docs/lulu.png" alt="Victor Reis Carlota" width="150"/>
+
+---
 
 ---
 
