@@ -93,6 +93,5 @@ Todas estão listadas em `requirements.txt`.
 
 ---
 
----
 
 **Dúvidas ou sugestões:** Abra uma issue ou entre em contato!
