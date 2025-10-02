@@ -82,16 +82,15 @@ Todas estão listadas em `requirements.txt`.
 ## Autor
 
 ## Autores
-  
+
   <img src="./docs/vitola.png" alt="Victor Reis Carlota" width="400"/>
 
-  - [Victor Reis Carlota](https://github.com/victorreiscarlota)
+- [Victor Reis Carlota](https://github.com/victorreiscarlota)
 
-  <img src="./docs/lulu.png" alt="Victor Reis Carlota" width="400"/>
+  <img src="./docs/lulu.png" alt="Luís Felipe Brescia" width="400"/>
 
-  - [Luís Felipe Brescia](https://github.com/LuisBrescia)
+- [Luís Felipe Brescia](https://luisbrescia.tech)
 
 ---
-
 
 **Dúvidas ou sugestões:** Abra uma issue ou entre em contato!
