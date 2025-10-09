@@ -11,9 +11,9 @@ INPUT_RAW = "assets/prs_dataset.csv"
 OUTPUT_ENRICHED_FINAL = "assets/prs_dataset_enriched.csv"
 OUTPUT_ENRICHED_PARTIAL = "assets/prs_dataset_enriched_partial.csv"
 
-MAX_PR_PER_REPO = 80      
+MAX_PR_PER_REPO = 10      
 BATCH_SIZE = 200            
-STOP_AFTER = 3000          
+STOP_AFTER = 80        
 SILENT_BOTS = True         
 MIN_REVIEW_HOURS = 1.0      
 REQUIRE_AT_LEAST_ONE_REVIEW = True
