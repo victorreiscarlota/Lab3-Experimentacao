@@ -6,7 +6,8 @@ import pandas as pd
 from dotenv import load_dotenv
 from tqdm import tqdm
 from datetime import datetime, timezone
- 
+
+
 INPUT_RAW = "assets/prs_dataset.csv"
 OUTPUT_ENRICHED_FINAL = "assets/prs_dataset_enriched.csv"
 OUTPUT_ENRICHED_PARTIAL = "assets/prs_dataset_enriched_partial.csv"

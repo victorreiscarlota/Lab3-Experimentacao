@@ -2,7 +2,7 @@
 venv/
 ENV/
 env/
-assets/
+# assets/
 .env
 *.csv
 *.xlsx
