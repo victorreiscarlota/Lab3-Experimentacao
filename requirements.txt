@@ -3,3 +3,6 @@ pandas
 tqdm
 python-dotenv
 PyGithub
+matplotlib
+seaborn
+scipy

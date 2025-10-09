@@ -1,74 +1,77 @@
 import os
+import time
 import requests
 import pandas as pd
-from tqdm import tqdm
 from dotenv import load_dotenv
+from tqdm import tqdm
 
-def read_repos(filename):
-    with open(filename, "r") as f:
-        return [line.strip() for line in f.readlines()]
+REPOS_FILE = "assets/popular_repos.txt"
+OUTPUT_RAW = "assets/prs_dataset.csv"
 
-def get_prs(repo_fullname, github_token, min_prs=100):
+def load_token():
+    load_dotenv()
+    return os.getenv("GITHUB_TOKEN")
+
+def read_repos(path):
+    with open(path, "r", encoding="utf-8") as f:
+        return [l.strip() for l in f if l.strip()]
+
+def rate_limit_guard(resp):
+    if resp.status_code == 403:
+        remaining = resp.headers.get("X-RateLimit-Remaining")
+        reset = resp.headers.get("X-RateLimit-Reset")
+        if remaining == "0" and reset:
+            wait_s = max(int(reset) - int(time.time()) + 5, 5)
+            print(f"Limite atingido. Aguardando {wait_s} segundos...")
+            time.sleep(wait_s)
+            return True
+    return False
+
+def fetch_pr_list(repo, token, min_count=100):
     prs = []
     page = 1
     per_page = 100
-    headers = {"Authorization": f"token {github_token}"} if github_token else {}
-    url = f"https://api.github.com/repos/{repo_fullname}/pulls"
-    params = {
-        "state": "all",
-        "per_page": per_page,
-        "page": page
-    }
+    headers = {"Authorization": f"token {token}"} if token else {}
+    base_url = f"https://api.github.com/repos/{repo}/pulls"
     while True:
-        resp = requests.get(url, headers=headers, params=params)
+        params = {"state": "all", "per_page": per_page, "page": page}
+        resp = requests.get(base_url, headers=headers, params=params)
+        if rate_limit_guard(resp):
+            continue
         if resp.status_code != 200:
-            print(f"Erro ao coletar PRs de {repo_fullname}. Status: {resp.status_code}.")
-            print("Headers:", resp.headers)
-            print("Body:", resp.text)
+            print(f"[{repo}] Erro {resp.status_code}: {resp.text}")
             break
-        try:
-            data = resp.json()
-        except Exception as e:
-            print(f"Erro ao decodificar JSON para {repo_fullname}. Exception: {e}")
-            print("Body:", resp.text)
+        data = resp.json()
+        if not isinstance(data, list):
+            print(f"[{repo}] Resposta inesperada: {data}")
             break
-        if isinstance(data, dict) and data.get("message"):
-            print(f"API Error: {data['message']} no repo {repo_fullname}")
-            break
-        prs.extend(data)
-        if len(data) < per_page:
-            break
-        page += 1
-        params["page"] = page
-        if len(prs) >= min_prs:
-            break
-    return prs
-
-def main():
-    load_dotenv()
-    github_token = os.getenv("GITHUB_TOKEN")
-    repos = read_repos(os.path.join("assets", "popular_repos.txt"))
-    dataset = []
-    for repo in tqdm(repos):
-        prs = get_prs(repo, github_token, min_prs=100)
-        print(f"{repo}: {len(prs)} PRs coletados")
-        for pr in prs:
-            pr_data = {
+        for pr in data:
+            prs.append({
                 "repo": repo,
                 "pr_number": pr.get("number"),
                 "state": pr.get("state"),
                 "created_at": pr.get("created_at"),
-                "closed_at": pr.get("closed_at"),
                 "merged_at": pr.get("merged_at"),
-                "user": pr.get("user", {}).get("login"),
+                "closed_at": pr.get("closed_at"),
+                "user_login": pr.get("user", {}).get("login"),
                 "title": pr.get("title"),
                 "body": pr.get("body"),
-                "comments": pr.get("comments"),
-            }
-            dataset.append(pr_data)
-    df = pd.DataFrame(dataset)
-    df.to_csv(os.path.join("assets", "prs_dataset.csv"), index=False)
-    print(f"Dataset de PRs salvo em assets/prs_dataset.csv")
+            })
+        if len(data) < per_page or len(prs) >= min_count:
+            break
+        page += 1
+    return prs
+
+def main():
+    token = load_token()
+    repos = read_repos(REPOS_FILE)
+    all_rows = []
+    for repo in tqdm(repos, desc="Coletando PRs iniciais"):
+        rows = fetch_pr_list(repo, token, min_count=100)
+        all_rows.extend(rows)
+    df = pd.DataFrame(all_rows)
+    df.to_csv(OUTPUT_RAW, index=False, encoding="utf-8")
+    print(f"Dataset bruto salvo em {OUTPUT_RAW} (linhas: {len(df)})")
 
 if __name__ == "__main__":
     main()
